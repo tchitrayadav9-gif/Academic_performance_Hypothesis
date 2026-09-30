@@ -403,3 +403,7 @@ const HypothesisModule = (() => {
     tQuantile
   };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = HypothesisModule;
+}

@@ -1,6 +1,6 @@
 /**
  * Academic Performance Hypothesis Testing System
- * Main Orchestrator & UI Application Controller
+ * Main Orchestrator & UI Application Controller (3-Year Dataset & Enhanced Scrolling)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStudents = [];
   let filteredStudents = [];
   let currentPage = 1;
-  const pageSize = 10;
+  let pageSize = 10;
   let activeTestResult = null;
   let activeSampleContext = {};
 
@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentStudents || currentStudents.length === 0) return;
 
     const totalStudents = currentStudents.length;
+    const y0Count = currentStudents.filter(s => s.academicYear === '2024-2025').length;
     const y1Count = currentStudents.filter(s => s.academicYear === '2025-2026').length;
     const y2Count = currentStudents.filter(s => s.academicYear === '2026-2027').length;
 
@@ -130,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const elTotal = document.getElementById('dashTotalStudents');
     if (elTotal) elTotal.innerText = totalStudents;
 
+    const elY0 = document.getElementById('dashY0Students');
+    if (elY0) elY0.innerText = y0Count;
+
     const elY1 = document.getElementById('dashY1Students');
     if (elY1) elY1.innerText = y1Count;
 
@@ -139,11 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const elAvg = document.getElementById('dashAvgMarks');
     if (elAvg) elAvg.innerText = `${avgMarks.toFixed(2)}%`;
 
-    const elHigh = document.getElementById('dashHighMarks');
-    if (elHigh) elHigh.innerText = `${highestMarks}%`;
-
-    const elLow = document.getElementById('dashLowMarks');
-    if (elLow) elLow.innerText = `${lowestMarks}%`;
+    const elExtremes = document.getElementById('dashExtremes');
+    if (elExtremes) elExtremes.innerText = `${lowestMarks}% – ${highestMarks}%`;
 
     const elPass = document.getElementById('dashPassRate');
     if (elPass) elPass.innerText = `${passRate.toFixed(1)}%`;
@@ -156,11 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // STUDENT DATA MANAGEMENT (CRUD & TABLE)
+  // STUDENT DATA MANAGEMENT (CRUD, SCROLL & TABLE)
   // ==========================================
   function renderStudentTable() {
     const tableBody = document.getElementById('studentTableBody');
     if (!tableBody) return;
+
+    const scrollContainer = document.getElementById('studentTableScrollContainer');
 
     if (filteredStudents.length === 0) {
       tableBody.innerHTML = `
@@ -176,8 +179,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedItems = filteredStudents.slice(startIndex, startIndex + pageSize);
+    // Determine slice for pagination or show all
+    let paginatedItems = [];
+    if (pageSize === 'ALL') {
+      paginatedItems = filteredStudents;
+      if (scrollContainer) scrollContainer.classList.add('show-all-scroll');
+    } else {
+      if (scrollContainer) scrollContainer.classList.remove('show-all-scroll');
+      const limit = parseInt(pageSize, 10) || 10;
+      const startIndex = (currentPage - 1) * limit;
+      paginatedItems = filteredStudents.slice(startIndex, startIndex + limit);
+    }
 
     tableBody.innerHTML = paginatedItems.map(student => {
       const deptBadgeClass = getDeptBadgeClass(student.department);
@@ -189,11 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><strong class="text-primary">${student.studentId}</strong></td>
           <td>
             <div class="fw-bold">${student.name}</div>
-            <small class="text-muted">${student.gender}, ${student.age} yrs</small>
+            <small class="text-muted">${student.gender}, ${student.age} yrs | Att: ${student.attendance}%</small>
           </td>
           <td><span class="badge bg-light text-dark border">${student.academicYear}</span></td>
           <td><span class="badge-dept ${deptBadgeClass}">${student.department}</span></td>
-          <td>${student.section} (Sem ${student.semester})</td>
+          <td>Sec ${student.section} (Sem ${student.semester})</td>
           <td>${student.mathematics}</td>
           <td>${student.programming}</td>
           <td>${student.statistics}</td>
@@ -250,11 +262,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationInfo = document.getElementById('studentPaginationInfo');
     if (!paginationContainer || !paginationInfo) return;
 
-    const totalPages = Math.ceil(totalCount / pageSize) || 1;
+    if (pageSize === 'ALL') {
+      paginationInfo.innerText = `Showing all ${totalCount} records`;
+      paginationContainer.innerHTML = '';
+      return;
+    }
+
+    const limit = parseInt(pageSize, 10) || 10;
+    const totalPages = Math.ceil(totalCount / limit) || 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
-    const start = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-    const end = Math.min(currentPage * pageSize, totalCount);
+    const start = totalCount === 0 ? 0 : (currentPage - 1) * limit + 1;
+    const end = Math.min(currentPage * limit, totalCount);
 
     paginationInfo.innerText = `Showing ${start} to ${end} of ${totalCount} records`;
 
@@ -284,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     paginationContainer.querySelectorAll('.page-link').forEach(btn => {
       btn.addEventListener('click', () => {
-        const page = parseInt(btn.getAttribute('data-page'));
+        const page = parseInt(btn.getAttribute('data-page'), 10);
         if (page >= 1 && page <= totalPages) {
           currentPage = page;
           renderStudentTable();
@@ -322,11 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortVal = document.getElementById('sortBy')?.value || 'DEFAULT';
 
     filteredStudents = currentStudents.filter(student => {
-      // Global Search Match
+      // Search matches ID, Name, Dept, or Academic Year
       const matchesSearch = !searchVal || 
         student.studentId.toLowerCase().includes(searchVal) ||
         student.name.toLowerCase().includes(searchVal) ||
-        student.department.toLowerCase().includes(searchVal);
+        student.department.toLowerCase().includes(searchVal) ||
+        student.academicYear.toLowerCase().includes(searchVal);
 
       // Filters Match
       const matchesYear = yearVal === 'ALL' || student.academicYear === yearVal;
@@ -349,6 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
       filteredStudents.sort((a, b) => b.name.localeCompare(a.name));
     } else if (sortVal === 'ID_ASC') {
       filteredStudents.sort((a, b) => a.studentId.localeCompare(b.studentId));
+    } else if (sortVal === 'YEAR_DESC') {
+      filteredStudents.sort((a, b) => b.academicYear.localeCompare(a.academicYear));
     }
 
     currentPage = 1;
@@ -365,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('studentIdInput').removeAttribute('readonly');
     document.getElementById('studentFormMode').value = 'ADD';
 
-    // Suggest auto-generated ID based on current year count
     const nextNum = currentStudents.length + 1;
     document.getElementById('studentIdInput').value = `STU2026-${String(nextNum).padStart(3, '0')}`;
 
@@ -510,20 +531,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const subject = document.getElementById('retrievalSubject').value;
     const minPercent = parseFloat(document.getElementById('retrievalMinPercent').value) || 0;
     const maxPercent = parseFloat(document.getElementById('retrievalMaxPercent').value) || 100;
-    const minAttendance = parseFloat(document.getElementById('retrievalMinAttendance').value) || 0;
 
     const matched = currentStudents.filter(s => {
       const matchYear = year === 'ALL' || s.academicYear === year;
       const matchDept = dept === 'ALL' || s.department === dept;
       const matchPercent = s.percentage >= minPercent && s.percentage <= maxPercent;
-      const matchAtt = s.attendance >= minAttendance;
-      return matchYear && matchDept && matchPercent && matchAtt;
+      return matchYear && matchDept && matchPercent;
     });
 
     const resultBox = document.getElementById('retrievalResultsBox');
     resultBox.classList.remove('d-none');
 
-    // Calculate metrics for matched records
     const count = matched.length;
     document.getElementById('retrievalFoundCount').innerText = `${count} Students Found`;
 
@@ -542,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('retrievalLowest').innerText = `${summary.min}`;
       document.getElementById('retrievalSd').innerText = `${summary.stdDev.toFixed(2)}`;
 
-      // Populate Quick Table
+      // Populate Table
       const tableBody = document.getElementById('retrievalTableBody');
       tableBody.innerHTML = matched.slice(0, 15).map(s => `
         <tr>
@@ -575,13 +593,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // ACADEMIC ANALYSIS TAB
+  // ACADEMIC ANALYSIS TAB & 3-YEAR COMPARISON
   // ==========================================
   function runAcademicAnalysis() {
     const scope = document.getElementById('analysisScope')?.value || 'ALL';
     let targetStudents = [...currentStudents];
 
-    if (scope === '2025-2026' || scope === '2026-2027') {
+    if (scope === '2024-2025' || scope === '2025-2026' || scope === '2026-2027') {
       targetStudents = currentStudents.filter(s => s.academicYear === scope);
     } else if (scope.startsWith('DEPT_')) {
       const dept = scope.replace('DEPT_', '');
@@ -645,42 +663,43 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
     }
 
-    // 2-Year Direct Comparison Metrics
-    updateTwoYearComparisonSection();
+    // Three-Year Progression Breakdown
+    updateThreeYearComparisonSection();
   }
 
-  function updateTwoYearComparisonSection() {
+  function updateThreeYearComparisonSection() {
+    const y0Students = currentStudents.filter(s => s.academicYear === '2024-2025');
     const y1Students = currentStudents.filter(s => s.academicYear === '2025-2026');
     const y2Students = currentStudents.filter(s => s.academicYear === '2026-2027');
 
-    if (y1Students.length === 0 || y2Students.length === 0) return;
+    if (y0Students.length === 0 || y1Students.length === 0 || y2Students.length === 0) return;
 
+    const y0Mean = StatisticsModule.calculateMean(y0Students.map(s => s.percentage));
     const y1Mean = StatisticsModule.calculateMean(y1Students.map(s => s.percentage));
     const y2Mean = StatisticsModule.calculateMean(y2Students.map(s => s.percentage));
-    const diff = y2Mean - y1Mean;
 
+    const y0Sd = StatisticsModule.calculateStdDev(y0Students.map(s => s.percentage));
     const y1Sd = StatisticsModule.calculateStdDev(y1Students.map(s => s.percentage));
     const y2Sd = StatisticsModule.calculateStdDev(y2Students.map(s => s.percentage));
 
+    const y0Pass = (y0Students.filter(s => s.result === 'PASS').length / y0Students.length) * 100;
     const y1Pass = (y1Students.filter(s => s.result === 'PASS').length / y1Students.length) * 100;
     const y2Pass = (y2Students.filter(s => s.result === 'PASS').length / y2Students.length) * 100;
 
-    const y1Att = StatisticsModule.calculateMean(y1Students.map(s => s.attendance));
-    const y2Att = StatisticsModule.calculateMean(y2Students.map(s => s.attendance));
-
+    document.getElementById('compY0Avg').innerText = `${y0Mean.toFixed(2)}%`;
     document.getElementById('compY1Avg').innerText = `${y1Mean.toFixed(2)}%`;
     document.getElementById('compY2Avg').innerText = `${y2Mean.toFixed(2)}%`;
-    
-    const diffEl = document.getElementById('compDiffAvg');
-    diffEl.innerText = `${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%`;
-    diffEl.className = diff >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold';
 
+    document.getElementById('compY0Sd').innerText = y0Sd.toFixed(2);
     document.getElementById('compY1Sd').innerText = y1Sd.toFixed(2);
     document.getElementById('compY2Sd').innerText = y2Sd.toFixed(2);
+
+    document.getElementById('compY0Pass').innerText = `${y0Pass.toFixed(1)}%`;
     document.getElementById('compY1Pass').innerText = `${y1Pass.toFixed(1)}%`;
     document.getElementById('compY2Pass').innerText = `${y2Pass.toFixed(1)}%`;
-    document.getElementById('compY1Att').innerText = `${y1Att.toFixed(1)}%`;
-    document.getElementById('compY2Att').innerText = `${y2Att.toFixed(1)}%`;
+
+    // Render 3-Year Trend Line Chart
+    ChartsModule.renderThreeYearTrendChart(currentStudents);
   }
 
   // ==========================================
@@ -719,7 +738,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function displayHypothesisResult(res) {
     const container = document.getElementById('hypothesisResultContainer');
-    container.classList.remove('d-none');
+    const emptyState = document.getElementById('hypothesisEmptyState');
+    if (container) container.classList.remove('d-none');
+    if (emptyState) emptyState.classList.add('d-none');
 
     // Header styling
     const header = document.getElementById('hypoResHeader');
@@ -792,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const shuffled = [...matching].sort(() => 0.5 - Math.random());
       selectedStudents = shuffled.slice(0, Math.min(sampleSizeInput, matching.length));
     } else {
-      // ALL MATCHING
       selectedStudents = matching;
     }
 
@@ -822,14 +842,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     activeSampleContext = {
       source: 'Student Database Extraction',
-      year: year === 'ALL' ? '2025-2027 (Both Years)' : year,
+      year: year === 'ALL' ? 'All 3 Years (2024–2027)' : year,
       dept: dept === 'ALL' ? 'All Departments' : dept,
       subject: subjectName,
       sampleSize: summary.count
     };
 
     bootstrap.Modal.getInstance(document.getElementById('sampleDatabaseModal')).hide();
-    showToast(`Successfully extracted sample (n = ${summary.count}, x̄ = ${summary.mean.toFixed(2)}, s = ${summary.stdDev.toFixed(2)}) from Database!`, 'success');
+    showToast(`Loaded sample (n = ${summary.count}, x̄ = ${summary.mean.toFixed(2)}, s = ${summary.stdDev.toFixed(2)}) from Database!`, 'success');
+
+    // Run test directly
+    runHypothesisTestHandler();
   }
 
   // ==========================================
@@ -868,12 +891,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
+  // QUICK YEAR TEST LAUNCHERS
+  // ==========================================
+  function quickTestYear(year, benchmarkMu0) {
+    const matching = currentStudents.filter(s => s.academicYear === year);
+    if (matching.length === 0) return;
+
+    const summary = StatisticsModule.getDescriptiveSummary(matching.map(s => s.percentage));
+
+    document.getElementById('hypoPopMean').value = benchmarkMu0;
+    document.getElementById('hypoSampleMean').value = summary.mean.toFixed(2);
+    document.getElementById('hypoSampleSd').value = summary.stdDev.toFixed(2);
+    document.getElementById('hypoPopSd').value = '';
+    document.getElementById('hypoSampleSize').value = summary.count;
+    document.getElementById('hypoAlpha').value = '0.05';
+    document.getElementById('hypoTestType').value = 'two-tailed';
+
+    activeSampleContext = {
+      source: `Quick Test: ${year} Full Cohort`,
+      year: year,
+      dept: 'All Departments',
+      subject: 'Overall Percentage',
+      sampleSize: summary.count
+    };
+
+    switchSection('hypothesis-testing');
+    runHypothesisTestHandler();
+    showToast(`Executed test on ${year} cohort against μ₀ = ${benchmarkMu0}!`, 'info');
+  }
+
+  // ==========================================
   // PRESET EXAMPLES LOADER
   // ==========================================
   function loadPresetExample(exampleId) {
     switch (exampleId) {
       case 'ex1':
-        // Example 1: Two-Tailed Test (T-Test)
         document.getElementById('hypoPopMean').value = 70;
         document.getElementById('hypoSampleMean').value = 73;
         document.getElementById('hypoSampleSd').value = 8;
@@ -884,7 +936,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'ex2':
-        // Example 2: Right-Tailed Test
         document.getElementById('hypoPopMean').value = 65;
         document.getElementById('hypoSampleMean').value = 68;
         document.getElementById('hypoSampleSd').value = 7;
@@ -895,7 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'ex3':
-        // Example 3: Left-Tailed Test
         document.getElementById('hypoPopMean').value = 75;
         document.getElementById('hypoSampleMean').value = 72;
         document.getElementById('hypoSampleSd').value = 9;
@@ -906,7 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'ex4':
-        // Example 4: Z-Test (Known Pop SD)
         document.getElementById('hypoPopMean').value = 70;
         document.getElementById('hypoSampleMean').value = 74;
         document.getElementById('hypoSampleSd').value = '';
@@ -917,7 +966,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'ex5':
-        // Example 5: One-Sample T-Test (Small Sample)
         document.getElementById('hypoPopMean').value = 70;
         document.getElementById('hypoSampleMean').value = 74;
         document.getElementById('hypoSampleSd').value = 8;
@@ -1086,6 +1134,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Page size dropdown change
+    document.getElementById('pageSizeSelect')?.addEventListener('change', (e) => {
+      pageSize = e.target.value;
+      currentPage = 1;
+      renderStudentTable();
+    });
+
     document.getElementById('btnResetFilters')?.addEventListener('click', () => {
       ['studentTableSearch', 'filterYear', 'filterDept', 'filterSection', 'filterGrade', 'filterResult', 'sortBy'].forEach(id => {
         const el = document.getElementById(id);
@@ -1104,6 +1159,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Academic Analysis scope change
     document.getElementById('analysisScope')?.addEventListener('change', runAcademicAnalysis);
+
+    // Quick Year Tests
+    document.getElementById('btnQuickTest2024')?.addEventListener('click', () => quickTestYear('2024-2025', 65));
+    document.getElementById('btnQuickTest2025')?.addEventListener('click', () => quickTestYear('2025-2026', 70));
+    document.getElementById('btnQuickTest2026')?.addEventListener('click', () => quickTestYear('2026-2027', 75));
 
     // Hypothesis Testing
     document.getElementById('btnRunHypothesisTest')?.addEventListener('click', runHypothesisTestHandler);
@@ -1126,13 +1186,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Reset Sample Dataset
+    // Reset Sample Dataset (Uses custom modal)
     document.getElementById('btnResetDataset')?.addEventListener('click', () => {
-      if (confirm('Are you sure you want to restore the default 2-year student dataset (200 records)? Any unsaved modifications will be replaced.')) {
-        StorageModule.resetSampleDataset();
-        loadStudentData();
-        showToast('Sample dataset restored successfully!', 'success');
-      }
+      const modal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+      modal.show();
+    });
+
+    document.getElementById('btnConfirmResetDataset')?.addEventListener('click', () => {
+      StorageModule.resetSampleDataset();
+      loadStudentData();
+      bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal')).hide();
+      showToast('Academic dataset restored to original 3-year (300 students) dataset!', 'success');
     });
 
     // Data Exports
@@ -1178,7 +1242,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function initLearningMath() {
-    // Math display triggers KaTeX if available
     if (window.renderMathInElement) {
       window.renderMathInElement(document.body, {
         delimiters: [

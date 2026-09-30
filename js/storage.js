@@ -1,20 +1,39 @@
 /**
  * Academic Performance Hypothesis Testing System
- * Storage Module: LocalStorage Persistence Layer
+ * Storage Module: LocalStorage Persistence Layer with 3-Year Migration Support
  */
 
 const StorageModule = (() => {
   const KEYS = {
-    STUDENTS: 'aphts_student_records',
+    STUDENTS: 'aphts_student_records_v2', // v2 for 3-year dataset
+    OLD_STUDENTS: 'aphts_student_records',
     ANALYSES: 'aphts_saved_analyses',
     SETTINGS: 'aphts_settings'
   };
 
   /**
-   * Initialize storage with default data if empty
+   * Initialize storage with default data if empty or outdated
    */
   function initStorage() {
-    if (!localStorage.getItem(KEYS.STUDENTS)) {
+    let needsReset = false;
+    const existingV2 = localStorage.getItem(KEYS.STUDENTS);
+
+    if (!existingV2) {
+      needsReset = true;
+    } else {
+      try {
+        const parsed = JSON.parse(existingV2);
+        // Check if 2024-2025 records are present and length >= 300
+        const has2024 = parsed.some(s => s.academicYear === '2024-2025');
+        if (!has2024 || parsed.length < 300) {
+          needsReset = true;
+        }
+      } catch (e) {
+        needsReset = true;
+      }
+    }
+
+    if (needsReset) {
       const initialStudents = StudentDataModule.generateSampleStudents();
       localStorage.setItem(KEYS.STUDENTS, JSON.stringify(initialStudents));
     }
@@ -46,7 +65,7 @@ const StorageModule = (() => {
   }
 
   /**
-   * Reset to fresh sample dataset
+   * Reset to fresh 3-year sample dataset (300 records)
    */
   function resetSampleDataset() {
     const initialStudents = StudentDataModule.generateSampleStudents();
@@ -154,3 +173,7 @@ const StorageModule = (() => {
     clearAllAnalyses
   };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = StorageModule;
+}

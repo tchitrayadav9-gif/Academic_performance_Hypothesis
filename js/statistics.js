@@ -180,3 +180,7 @@ const StatisticsModule = (() => {
     parseRawData
   };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = StatisticsModule;
+}

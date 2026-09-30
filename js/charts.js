@@ -1,6 +1,6 @@
 /**
  * Academic Performance Hypothesis Testing System
- * Charts Module: Chart.js Visualizations & Dynamic Distribution Curves
+ * Charts Module: 3-Year Visualizations & Dynamic Distribution Curves
  */
 
 const ChartsModule = (() => {
@@ -12,11 +12,10 @@ const ChartsModule = (() => {
   let deptPerformanceChartInstance = null;
   let attendanceDistChartInstance = null;
   let analyticsSubjectChartInstance = null;
+  let threeYearTrendChartInstance = null;
 
   /**
    * Render or Update the Statistical Distribution Curve Chart (Normal or Student's T)
-   *
-   * @param {Object} testResult - Output from HypothesisModule.runHypothesisTest
    */
   function renderDistributionCurve(testResult) {
     const canvas = document.getElementById('distributionCurveChart');
@@ -27,7 +26,7 @@ const ChartsModule = (() => {
       distributionChartInstance.destroy();
     }
 
-    const { isZTest, df, testType, criticalValueLow, criticalValueHigh, testStatistic, isReject } = testResult;
+    const { isZTest, df, testType, criticalValueLow, criticalValueHigh, testStatistic } = testResult;
 
     // Generate points along the X axis from -4.5 to +4.5
     const numPoints = 180;
@@ -38,7 +37,6 @@ const ChartsModule = (() => {
     const labels = [];
     const mainCurveData = [];
     const rejectionData = [];
-    const testStatMarker = [];
 
     for (let i = 0; i <= numPoints; i++) {
       const x = minX + i * step;
@@ -68,16 +66,8 @@ const ChartsModule = (() => {
       }
 
       rejectionData.push(inRejection ? y : null);
-
-      // Marker for test statistic
-      if (Math.abs(x - testStatistic) < (step / 1.8)) {
-        testStatMarker.push(y);
-      } else {
-        testStatMarker.push(null);
-      }
     }
 
-    // Build critical value annotations / dataset
     const datasets = [
       {
         label: 'Rejection Region (Critical Area)',
@@ -120,7 +110,7 @@ const ChartsModule = (() => {
           },
           tooltip: {
             callbacks: {
-              title: (items) => `Score (z/t): ${items[0].label}`,
+              title: (items) => `Z/t-Score: ${items[0].label}`,
               label: (item) => `Density: ${parseFloat(item.raw).toFixed(4)}`
             }
           }
@@ -129,7 +119,7 @@ const ChartsModule = (() => {
           x: {
             title: {
               display: true,
-              text: isZTest ? 'Standardized Z-Score' : `t-Statistic (Degrees of Freedom: ${df})`,
+              text: isZTest ? 'Standardized Z-Score' : `t-Statistic (df = ${df})`,
               font: { weight: 'bold', size: 12 }
             },
             grid: { color: 'rgba(226, 232, 240, 0.6)' },
@@ -151,18 +141,21 @@ const ChartsModule = (() => {
   }
 
   /**
-   * Render Dashboard Charts
+   * Render Dashboard Charts across all 3 academic years
    */
   function renderDashboardCharts(students) {
     if (!students || students.length === 0) return;
 
-    // 1. Year Comparison Chart (2025-26 vs 2026-27)
+    // 1. Three-Year Comparison Chart (2024-25 vs 2025-26 vs 2026-27)
+    const y0Students = students.filter(s => s.academicYear === '2024-2025');
     const y1Students = students.filter(s => s.academicYear === '2025-2026');
     const y2Students = students.filter(s => s.academicYear === '2026-2027');
 
+    const y0Mean = StatisticsModule.calculateMean(y0Students.map(s => s.percentage));
     const y1Mean = StatisticsModule.calculateMean(y1Students.map(s => s.percentage));
     const y2Mean = StatisticsModule.calculateMean(y2Students.map(s => s.percentage));
 
+    const y0Att = StatisticsModule.calculateMean(y0Students.map(s => s.attendance));
     const y1Att = StatisticsModule.calculateMean(y1Students.map(s => s.attendance));
     const y2Att = StatisticsModule.calculateMean(y2Students.map(s => s.attendance));
 
@@ -174,6 +167,12 @@ const ChartsModule = (() => {
         data: {
           labels: ['Average Percentage (%)', 'Average Attendance (%)'],
           datasets: [
+            {
+              label: '2024-2025',
+              data: [parseFloat(y0Mean.toFixed(2)), parseFloat(y0Att.toFixed(2))],
+              backgroundColor: 'rgba(245, 158, 11, 0.85)',
+              borderRadius: 6
+            },
             {
               label: '2025-2026',
               data: [parseFloat(y1Mean.toFixed(2)), parseFloat(y1Att.toFixed(2))],
@@ -192,14 +191,13 @@ const ChartsModule = (() => {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: false, min: 50, max: 100 }
+            y: { beginAtZero: false, min: 40, max: 100 }
           }
         }
       });
     }
 
     // 2. Subject Averages Chart
-    const subjects = ['Mathematics', 'Programming', 'Statistics', 'Database', 'AI'];
     const subKeys = ['mathematics', 'programming', 'statistics', 'database', 'ai'];
     const subAvgs = subKeys.map(key => parseFloat(StatisticsModule.calculateMean(students.map(s => s[key])).toFixed(2)));
 
@@ -311,7 +309,7 @@ const ChartsModule = (() => {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: false, min: 50, max: 100 }
+            y: { beginAtZero: false, min: 40, max: 100 }
           },
           plugins: { legend: { display: false } }
         }
@@ -319,8 +317,9 @@ const ChartsModule = (() => {
     }
 
     // 6. Attendance Distribution
-    const attBuckets = ['60-70%', '70-80%', '80-90%', '90-100%'];
+    const attBuckets = ['50-60%', '60-70%', '70-80%', '80-90%', '90-100%'];
     const attCounts = [
+      students.filter(s => s.attendance >= 50 && s.attendance < 60).length,
       students.filter(s => s.attendance >= 60 && s.attendance < 70).length,
       students.filter(s => s.attendance >= 70 && s.attendance < 80).length,
       students.filter(s => s.attendance >= 80 && s.attendance < 90).length,
@@ -391,9 +390,68 @@ const ChartsModule = (() => {
     });
   }
 
+  /**
+   * Render 3-Year Trend Comparison Line Chart
+   */
+  function renderThreeYearTrendChart(students) {
+    const ctx = document.getElementById('threeYearTrendChart');
+    if (!ctx) return;
+    if (threeYearTrendChartInstance) threeYearTrendChartInstance.destroy();
+
+    const years = ['2024-2025', '2025-2026', '2026-2027'];
+    const subjects = ['mathematics', 'programming', 'statistics', 'database', 'ai', 'percentage'];
+    
+    const datasets = [
+      {
+        label: 'Overall Percentage',
+        data: years.map(y => StatisticsModule.calculateMean(students.filter(s => s.academicYear === y).map(s => s.percentage))),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 3,
+        tension: 0.2
+      },
+      {
+        label: 'Statistics Marks',
+        data: years.map(y => StatisticsModule.calculateMean(students.filter(s => s.academicYear === y).map(s => s.statistics))),
+        borderColor: '#10b981',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.2
+      },
+      {
+        label: 'AI Marks',
+        data: years.map(y => StatisticsModule.calculateMean(students.filter(s => s.academicYear === y).map(s => s.ai))),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.2
+      }
+    ];
+
+    threeYearTrendChartInstance = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['2024-2025 (Cohort 1)', '2025-2026 (Cohort 2)', '2026-2027 (Cohort 3)'],
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: false, min: 50, max: 95 }
+        }
+      }
+    });
+  }
+
   return {
     renderDistributionCurve,
     renderDashboardCharts,
-    renderAnalyticsSubjectChart
+    renderAnalyticsSubjectChart,
+    renderThreeYearTrendChart
   };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ChartsModule;
+}
