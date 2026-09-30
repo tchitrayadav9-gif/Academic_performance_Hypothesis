@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Performance Hypothesis Testing System | Student Academic Statistics & Platform</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- KaTeX CSS for Mathematical Formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ========================================== -->
+    <!-- SIDEBAR NAVIGATION                         -->
+    <!-- ========================================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand-icon">
+          <i class="fas fa-square-root-variable"></i>
+        </div>
+        <div class="sidebar-brand-text">
+          <h1>APHTS</h1>
+          <small>Hypothesis Platform</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Core Modules</div>
+        <a class="nav-link-item active" data-target="dashboard">
+          <i class="fas fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-link-item" data-target="student-data">
+          <i class="fas fa-user-graduate"></i>
+          <span>Student Data</span>
+          <span class="badge bg-primary" id="datasetBadgeCount">200 Students</span>
+        </a>
+        <a class="nav-link-item" data-target="academic-analysis">
+          <i class="fas fa-chart-line"></i>
+          <span>Academic Analysis</span>
+        </a>
+
+        <div class="nav-category">Statistical Testing</div>
+        <a class="nav-link-item" data-target="hypothesis-testing">
+          <i class="fas fa-calculator"></i>
+          <span>Hypothesis Testing</span>
+        </a>
+        <a class="nav-link-item" data-target="analysis-history">
+          <i class="fas fa-history"></i>
+          <span>Saved Results</span>
+        </a>
+        <a class="nav-link-item" data-target="visualizations">
+          <i class="fas fa-chart-bar"></i>
+          <span>Visualizations</span>
+        </a>
+
+        <div class="nav-category">Knowledge & Reference</div>
+        <a class="nav-link-item" data-target="examples">
+          <i class="fas fa-lightbulb"></i>
+          <span>Preset Examples</span>
+        </a>
+        <a class="nav-link-item" data-target="learn">
+          <i class="fas fa-book-open"></i>
+          <span>Learn Hypothesis</span>
+        </a>
+        <a class="nav-link-item" data-target="about">
+          <i class="fas fa-info-circle"></i>
+          <span>About Project</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span>B.Tech AIML • Mod VII</span>
+        <button class="btn btn-sm btn-outline-light py-0 px-2" id="btnResetDataset" title="Restore original 2-year sample dataset">
+          <i class="fas fa-rotate-left me-1"></i>Reset
+        </button>
+      </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- MAIN APPLICATION WRAPPER                  -->
+    <!-- ========================================== -->
+    <div class="main-wrapper">
+      
+      <!-- Top Navigation Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="global-search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" class="global-search-input" id="globalSearchInput" placeholder="Search by Student ID, Name, Department...">
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="dataset-badge">
+            <span class="dataset-badge-dot"></span>
+            <span>2-Year Academic DB Active</span>
+          </div>
+          <button class="btn btn-outline-custom btn-sm btn-no-print" id="btnExportStudentCsv">
+            <i class="fas fa-file-csv text-success me-1"></i> Export CSV
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content Area -->
+      <main class="page-content">
+
+        <!-- ========================================== -->
+        <!-- 1. DASHBOARD VIEW                          -->
+        <!-- ========================================== -->
+        <section class="section-view active" id="dashboard">
+          
+          <!-- Hero Banner -->
+          <div class="hero-banner">
+            <div class="hero-title">Academic Performance Hypothesis Testing System</div>
+            <p class="hero-subtitle">
+              Student Academic Statistics, Data Retrieval & Hypothesis Testing Platform for B.Tech AIML students.
+              Analyze realistic cohorts, draw random samples, and evaluate population mean hypotheses via Z-Test & One-Sample T-Test.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary-custom" data-route="hypothesis-testing">
+                <i class="fas fa-flask me-1"></i> Start Hypothesis Test
+              </button>
+              <button class="btn btn-outline-custom" data-route="student-data">
+                <i class="fas fa-table me-1"></i> Explore Student Data
+              </button>
+              <button class="btn btn-outline-custom" data-route="learn">
+                <i class="fas fa-graduation-cap me-1"></i> Learn Statistical Concepts
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Stat KPI Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Total Students</span>
+                  <div class="stat-card-icon icon-blue"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashTotalStudents">200</div>
+                <div class="stat-card-subtitle text-muted">2 Cohorts (2025-27)</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Average Marks</span>
+                  <div class="stat-card-icon icon-indigo"><i class="fas fa-calculator"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashAvgMarks">73.1%</div>
+                <div class="stat-card-subtitle text-muted">Overall Percentage</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Pass Rate</span>
+                  <div class="stat-card-icon icon-emerald"><i class="fas fa-award"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashPassRate">92.0%</div>
+                <div class="stat-card-subtitle text-success"><i class="fas fa-check-circle"></i> Criteria: All subjects &ge; 40</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Avg Attendance</span>
+                  <div class="stat-card-icon icon-purple"><i class="fas fa-user-check"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashAvgAttendance">83.0%</div>
+                <div class="stat-card-subtitle text-muted">Regular Cohort</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Stat Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">2025-26 Cohort</span>
+                  <div class="stat-card-icon icon-amber"><i class="fas fa-calendar-alt"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashY1Students">100</div>
+                <div class="stat-card-subtitle text-muted">Year 1 Students</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">2026-27 Cohort</span>
+                  <div class="stat-card-icon icon-cyan"><i class="fas fa-calendar-check"></i></div>
+                </div>
+                <div class="stat-card-value" id="dashY2Students">100</div>
+                <div class="stat-card-subtitle text-muted">Year 2 Students</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Highest Score</span>
+                  <div class="stat-card-icon icon-emerald"><i class="fas fa-arrow-up"></i></div>
+                </div>
+                <div class="stat-card-value text-success" id="dashHighMarks">98%</div>
+                <div class="stat-card-subtitle text-muted">Top Performer</div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="stat-card">
+                <div class="stat-card-header">
+                  <span class="stat-card-title">Lowest Score</span>
+                  <div class="stat-card-icon icon-rose"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="stat-card-value text-danger" id="dashLowMarks">41%</div>
+                <div class="stat-card-subtitle text-muted">Minimum Score</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Charts Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+              <div class="card-custom h-100">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-code-compare text-primary"></i> 2025-26 vs 2026-27 Academic Comparison</h3>
+                  <small class="text-muted">Mean & Attendance</small>
+                </div>
+                <div class="card-custom-body" style="height: 300px;">
+                  <canvas id="yearComparisonChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-chart-pie text-indigo"></i> Grade Distribution</h3>
+                </div>
+                <div class="card-custom-body" style="height: 300px;">
+                  <canvas id="gradeDistChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-book-bookmark text-primary"></i> Subject-Wise Average Marks</h3>
+                </div>
+                <div class="card-custom-body" style="height: 280px;">
+                  <canvas id="subjectAverageChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-building text-info"></i> Department Performance</h3>
+                </div>
+                <div class="card-custom-body" style="height: 280px;">
+                  <canvas id="deptPerformanceChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. STUDENT DATA VIEW (CRUD & TABLE)        -->
+        <!-- ========================================== -->
+        <section class="section-view" id="student-data">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Student Academic Database</h2>
+              <p class="page-subtitle">Manage, search, filter, and inspect student records across two academic years.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-custom" id="btnExportStudentJson">
+                <i class="fas fa-file-code me-1 text-primary"></i> Export JSON
+              </button>
+              <button class="btn btn-primary-custom" id="btnAddStudentModal">
+                <i class="fas fa-plus me-1"></i> Add Student
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="card-custom mb-3">
+            <div class="card-custom-body p-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-3">
+                  <input type="text" class="form-control form-control-sm" id="studentTableSearch" placeholder="Search ID, Name, Dept...">
+                </div>
+                <div class="col-md-2">
+                  <select class="form-select form-select-sm" id="filterYear">
+                    <option value="ALL">All Academic Years</option>
+                    <option value="2025-2026">2025-2026</option>
+                    <option value="2026-2027">2026-2027</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select class="form-select form-select-sm" id="filterDept">
+                    <option value="ALL">All Departments</option>
+                    <option value="CSE-AIML">CSE-AIML</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="IT">IT</option>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <select class="form-select form-select-sm" id="filterSection">
+                    <option value="ALL">Sec: All</option>
+                    <option value="A">Sec A</option>
+                    <option value="B">Sec B</option>
+                    <option value="C">Sec C</option>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <select class="form-select form-select-sm" id="filterGrade">
+                    <option value="ALL">Grade</option>
+                    <option value="A+">A+</option>
+                    <option value="A">A</option>
+                    <option value="B+">B+</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="F">F</option>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <select class="form-select form-select-sm" id="filterResult">
+                    <option value="ALL">Result</option>
+                    <option value="PASS">PASS</option>
+                    <option value="FAIL">FAIL</option>
+                  </select>
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                  <select class="form-select form-select-sm" id="sortBy">
+                    <option value="DEFAULT">Sort By</option>
+                    <option value="PERCENT_DESC">Highest %</option>
+                    <option value="PERCENT_ASC">Lowest %</option>
+                    <option value="NAME_ASC">Name (A-Z)</option>
+                    <option value="NAME_DESC">Name (Z-A)</option>
+                    <option value="ID_ASC">Student ID</option>
+                  </select>
+                  <button class="btn btn-outline-secondary btn-sm" id="btnResetFilters" title="Reset Filters">
+                    <i class="fas fa-undo"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Records Table -->
+          <div class="table-custom-wrapper mb-3">
+            <div class="table-responsive">
+              <table class="table-custom" id="studentMainTable">
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Year</th>
+                    <th>Dept</th>
+                    <th>Sec/Sem</th>
+                    <th>Math</th>
+                    <th>Prog</th>
+                    <th>Stats</th>
+                    <th>DBMS</th>
+                    <th>AI</th>
+                    <th>Total</th>
+                    <th>%</th>
+                    <th>Grade</th>
+                    <th>Result</th>
+                    <th class="actions-column">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <small class="text-muted" id="studentPaginationInfo">Showing 1 to 10 of 200 records</small>
+            <ul class="pagination pagination-sm mb-0" id="studentPagination">
+              <!-- Rendered dynamically -->
+            </ul>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. ACADEMIC ANALYSIS VIEW                  -->
+        <!-- ========================================== -->
+        <section class="section-view" id="academic-analysis">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Academic Descriptive Analysis</h2>
+              <p class="page-subtitle">Descriptive summary statistics, subject-wise analytics, and multi-parameter data retrieval.</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <label for="analysisScope" class="small fw-bold text-muted">Analysis Scope:</label>
+              <select class="form-select form-select-sm w-auto" id="analysisScope">
+                <option value="ALL">Entire 2-Year Dataset (200 Students)</option>
+                <option value="2025-2026">2025-2026 Academic Year</option>
+                <option value="2026-2027">2026-2027 Academic Year</option>
+                <option value="DEPT_CSE-AIML">Department: CSE-AIML</option>
+                <option value="DEPT_CSE">Department: CSE</option>
+                <option value="DEPT_ECE">Department: ECE</option>
+                <option value="DEPT_EEE">Department: EEE</option>
+                <option value="DEPT_IT">Department: IT</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Descriptive KPI Metrics -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Mean (x̄)</span><div class="stat-box-val text-primary" id="statMean">73.10</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Median</span><div class="stat-box-val text-indigo" id="statMedian">73.40</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Mode(s)</span><div class="stat-box-val text-dark fs-6 mt-1" id="statMode">72.4</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Std Deviation (s)</span><div class="stat-box-val text-amber" id="statStdDev">8.45</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Sample Variance (s²)</span><div class="stat-box-val text-secondary" id="statVariance">71.40</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Range (Min - Max)</span><div class="stat-box-val text-dark fs-6 mt-1" id="statRange">41 - 98 (57)</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Pass Percentage</span><div class="stat-box-val text-success" id="statPassRate">92.0%</div></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-box"><span class="stat-box-label">Fail Percentage</span><div class="stat-box-val text-danger" id="statFailRate">8.0%</div></div>
+            </div>
+          </div>
+
+          <!-- Subject Wise Analysis Row -->
+          <div class="card-custom mb-4">
+            <div class="card-custom-header">
+              <h3 class="card-custom-title"><i class="fas fa-layer-group text-primary"></i> Subject-Wise Statistical Breakdown</h3>
+            </div>
+            <div class="card-custom-body">
+              <div class="row g-3">
+                <div class="col-lg-6">
+                  <div class="table-responsive">
+                    <table class="table-custom">
+                      <thead>
+                        <tr>
+                          <th>Subject</th>
+                          <th>Mean (x̄)</th>
+                          <th>High</th>
+                          <th>Low</th>
+                          <th>SD (s)</th>
+                          <th>Var (s²)</th>
+                          <th>Pass %</th>
+                        </tr>
+                      </thead>
+                      <tbody id="subjectStatsTableBody">
+                        <!-- Rendered dynamically -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div style="height: 260px;">
+                    <canvas id="analyticsSubjectChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2025-26 vs 2026-27 Comparison Card -->
+          <div class="card-custom mb-4">
+            <div class="card-custom-header">
+              <h3 class="card-custom-title"><i class="fas fa-arrows-split-up-and-left text-indigo"></i> 2025-26 vs 2026-27 Academic Performance Scenario</h3>
+            </div>
+            <div class="card-custom-body">
+              <div class="row g-3 text-center">
+                <div class="col-md-3">
+                  <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">2025-2026 Mean</small>
+                    <span class="fs-4 fw-bold text-primary" id="compY1Avg">71.80%</span>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">2026-2027 Mean</small>
+                    <span class="fs-4 fw-bold text-success" id="compY2Avg">74.20%</span>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Difference in Means</small>
+                    <span class="fs-4 fw-bold text-success" id="compDiffAvg">+2.40%</span>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="p-3 bg-light rounded border">
+                    <small class="text-muted d-block">Cohort Sample Sizes</small>
+                    <span class="fs-5 fw-bold text-dark">n₁ = 100, n₂ = 100</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mt-2 text-center small text-muted">
+                <div class="col-md-3">Std Dev: <strong id="compY1Sd">8.7</strong> vs <strong id="compY2Sd">8.2</strong></div>
+                <div class="col-md-3">Pass Rate: <strong id="compY1Pass">90%</strong> vs <strong id="compY2Pass">94%</strong></div>
+                <div class="col-md-3">Attendance: <strong id="compY1Att">82%</strong> vs <strong id="compY2Att">84%</strong></div>
+                <div class="col-md-3"><span class="badge bg-success bg-opacity-10 text-success border border-success">Performance Improved in Year 2</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Powerful Data Retrieval Section -->
+          <div class="card-custom">
+            <div class="card-custom-header">
+              <h3 class="card-custom-title"><i class="fas fa-filter-circle-dollar text-primary"></i> Multi-Parameter Student Data Retrieval Engine</h3>
+              <small class="text-muted">Targeted Analytics & Cohort Slicing</small>
+            </div>
+            <div class="card-custom-body">
+              <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-2">
+                  <label class="form-label small fw-bold">Academic Year</label>
+                  <select class="form-select form-select-sm" id="retrievalYear">
+                    <option value="ALL">Both Years (2025-27)</option>
+                    <option value="2025-2026">2025-2026</option>
+                    <option value="2026-2027">2026-2027</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-bold">Department</label>
+                  <select class="form-select form-select-sm" id="retrievalDept">
+                    <option value="ALL">All Departments</option>
+                    <option value="CSE-AIML">CSE-AIML</option>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="IT">IT</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-bold">Analyze Subject</label>
+                  <select class="form-select form-select-sm" id="retrievalSubject">
+                    <option value="overall">Overall Percentage</option>
+                    <option value="mathematics">Mathematics</option>
+                    <option value="programming">Programming</option>
+                    <option value="statistics">Statistics</option>
+                    <option value="database">DBMS</option>
+                    <option value="ai">Artificial Intelligence</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-bold">Min Percentage (%)</label>
+                  <input type="number" class="form-control form-control-sm" id="retrievalMinPercent" value="70" min="0" max="100">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-bold">Max Percentage (%)</label>
+                  <input type="number" class="form-control form-control-sm" id="retrievalMaxPercent" value="100" min="0" max="100">
+                </div>
+                <div class="col-md-2">
+                  <button class="btn btn-primary-custom w-100 btn-sm" id="btnRunRetrieval">
+                    <i class="fas fa-magnifying-glass me-1"></i> Retrieve Data
+                  </button>
+                </div>
+              </div>
+
+              <!-- Retrieval Output Box -->
+              <div id="retrievalResultsBox" class="p-3 bg-light rounded border d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="fw-bold mb-0 text-primary" id="retrievalFoundCount">0 Students Found</h6>
+                  <small class="text-muted" id="retrievalTableNote"></small>
+                </div>
+
+                <div class="row g-2 mb-3 text-center">
+                  <div class="col"><div class="stat-box py-1"><span class="stat-box-label">Average</span><div class="fw-bold" id="retrievalAvg">0</div></div></div>
+                  <div class="col"><div class="stat-box py-1"><span class="stat-box-label">Highest</span><div class="fw-bold text-success" id="retrievalHighest">0</div></div></div>
+                  <div class="col"><div class="stat-box py-1"><span class="stat-box-label">Lowest</span><div class="fw-bold text-danger" id="retrievalLowest">0</div></div></div>
+                  <div class="col"><div class="stat-box py-1"><span class="stat-box-label">Std. Deviation</span><div class="fw-bold" id="retrievalSd">0</div></div></div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table-custom">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Year</th>
+                        <th>Dept</th>
+                        <th>Attendance</th>
+                        <th>Percentage</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody id="retrievalTableBody">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 4. HYPOTHESIS TESTING VIEW (MAIN ENGINE)   -->
+        <!-- ========================================== -->
+        <section class="section-view" id="hypothesis-testing">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Population Mean Hypothesis Testing Engine</h2>
+              <p class="page-subtitle">Perform Z-Test or One-Sample Student's T-Test on academic data with dynamic test selection and distribution graph.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-custom" data-bs-toggle="modal" data-bs-target="#sampleDatabaseModal">
+                <i class="fas fa-database text-primary me-1"></i> Select Sample from Database
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Left Column: Input Form -->
+            <div class="col-lg-5">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-sliders text-primary"></i> Test Parameters</h3>
+                </div>
+                <div class="card-custom-body">
+                  <form id="hypothesisForm" onsubmit="event.preventDefault();">
+                    
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Hypothesized Population Mean (μ₀) <span class="text-danger">*</span></label>
+                      <input type="number" step="any" class="form-control" id="hypoPopMean" placeholder="e.g. 70.0" value="70" required>
+                      <small class="text-muted">Target academic standard / benchmark mean to test against.</small>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Sample Mean (x̄) <span class="text-danger">*</span></label>
+                        <input type="number" step="any" class="form-control" id="hypoSampleMean" placeholder="e.g. 73.5" value="73.5" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Sample Size (n) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="hypoSampleSize" placeholder="e.g. 35" value="35" min="2" required>
+                      </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Sample Std Dev (s) <span class="text-danger">*</span></label>
+                        <input type="number" step="any" class="form-control" id="hypoSampleSd" placeholder="e.g. 8.2" value="8.2">
+                        <small class="text-muted">Used for T-Test when σ unknown.</small>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Population Std Dev (σ) <span class="badge bg-secondary">Optional</span></label>
+                        <input type="number" step="any" class="form-control" id="hypoPopSd" placeholder="e.g. 10.0 (if known)">
+                        <small class="text-muted">Triggers Z-Test if entered.</small>
+                      </div>
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Significance Level (α) <span class="text-danger">*</span></label>
+                        <select class="form-select" id="hypoAlpha">
+                          <option value="0.05">α = 0.05 (5% Level - Standard)</option>
+                          <option value="0.01">α = 0.01 (1% Level - Strict)</option>
+                          <option value="0.10">α = 0.10 (10% Level - Relaxed)</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Test Type (Tail) <span class="text-danger">*</span></label>
+                        <select class="form-select" id="hypoTestType">
+                          <option value="two-tailed">Two-Tailed (H₁: μ ≠ μ₀)</option>
+                          <option value="right-tailed">Right-Tailed (H₁: μ > μ₀)</option>
+                          <option value="left-tailed">Left-Tailed (H₁: μ < μ₀)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                      <button type="button" class="btn btn-primary-custom" id="btnRunHypothesisTest">
+                        <i class="fas fa-play me-1"></i> Perform Hypothesis Test
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Raw Sample Data Accordion -->
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-keyboard text-secondary"></i> Enter Raw Sample Marks</h3>
+                </div>
+                <div class="card-custom-body">
+                  <p class="small text-muted mb-2">Paste comma-separated student scores to automatically calculate $n$, $\bar{x}$, and $s$:</p>
+                  <textarea class="form-control form-control-sm mb-2" id="rawSampleDataInput" rows="3" placeholder="72, 68, 75, 81, 70, 74, 69, 85, 78, 66, 73, 79"></textarea>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <button class="btn btn-outline-custom btn-sm" id="btnParseRawSample">
+                      <i class="fas fa-calculator me-1"></i> Calculate Sample Statistics
+                    </button>
+                  </div>
+                  <div id="rawSampleStatsDisplay" class="mt-2"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Results & Visualization -->
+            <div class="col-lg-7">
+              
+              <!-- Result Container -->
+              <div id="hypothesisResultContainer" class="d-none">
+                <div class="hypothesis-result-card">
+                  <div id="hypoResHeader" class="hypothesis-header header-reject">
+                    <div>
+                      <h4 class="mb-0 fw-bold" id="hypoResTestName">One-Sample T-Test</h4>
+                      <small id="hypoResSigStatus">Statistically Significant</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-light" id="btnSaveAnalysis" title="Save this test to history">
+                        <i class="fas fa-bookmark me-1 text-primary"></i> Save Test
+                      </button>
+                      <button class="btn btn-sm btn-dark" id="btnGenerateReport" title="Generate printable academic report">
+                        <i class="fas fa-print me-1"></i> Print Report
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="hypothesis-body">
+                    
+                    <!-- Decision Banner -->
+                    <div id="hypoResBanner" class="decision-banner decision-banner-reject">
+                      <i class="fas fa-triangle-exclamation fs-3"></i>
+                      <div>
+                        <div class="decision-title" id="hypoResDecision">Reject H₀</div>
+                        <small id="hypoResDecisionReason"></small>
+                      </div>
+                    </div>
+
+                    <!-- Hypotheses Display -->
+                    <div class="row g-2 mb-3">
+                      <div class="col-6">
+                        <div class="p-2 bg-light rounded border text-center">
+                          <small class="text-muted d-block fw-bold">Null Hypothesis</small>
+                          <span class="fw-bold text-dark" id="hypoResNullHypo">H₀: μ = 70</span>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="p-2 bg-light rounded border text-center">
+                          <small class="text-muted d-block fw-bold">Alternative Hypothesis</small>
+                          <span class="fw-bold text-primary" id="hypoResAltHypo">H₁: μ ≠ 70</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Numeric Stats 4-Grid -->
+                    <div class="stats-grid-4">
+                      <div class="stat-box">
+                        <span class="stat-box-label">Pop Mean (μ₀)</span>
+                        <div class="stat-box-val text-dark" id="hypoResPopMean">70</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Sample Mean (x̄)</span>
+                        <div class="stat-box-val text-primary" id="hypoResSampleMean">73.5</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Std Dev (SD)</span>
+                        <div class="stat-box-val text-dark" id="hypoResSd">8.2</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Sample Size (n)</span>
+                        <div class="stat-box-val text-dark" id="hypoResSampleSize">35</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Std Error (SE)</span>
+                        <div class="stat-box-val text-dark" id="hypoResStandardError">1.386</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Degrees of Freedom</span>
+                        <div class="stat-box-val text-dark" id="hypoResDf">34</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Test Statistic</span>
+                        <div class="stat-box-val text-primary" id="hypoResTestStat">2.525</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Critical Value</span>
+                        <div class="stat-box-val text-dark" id="hypoResCritVal">2.032</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">P-Value</span>
+                        <div class="stat-box-val text-danger" id="hypoResPVal">0.0164</div>
+                      </div>
+                      <div class="stat-box">
+                        <span class="stat-box-label">Significance (α)</span>
+                        <div class="stat-box-val text-dark" id="hypoResAlpha">0.05</div>
+                      </div>
+                    </div>
+
+                    <!-- Test Selection Rationale -->
+                    <div class="small text-muted mb-3">
+                      <strong>Method Applied:</strong> <span id="hypoResSelectionReason"></span>
+                    </div>
+
+                    <!-- Dynamic Normal / Student's T Distribution Canvas -->
+                    <div class="card mb-3">
+                      <div class="card-header bg-white py-2 fw-bold small">
+                        <i class="fas fa-chart-area text-primary me-1"></i> Theoretical Sampling Distribution Curve & Rejection Zones
+                      </div>
+                      <div class="card-body p-2" style="height: 260px;">
+                        <canvas id="distributionCurveChart"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- Final Conclusion Text -->
+                    <div class="hypothesis-explanation">
+                      <h6 class="fw-bold text-dark mb-1"><i class="fas fa-file-lines me-1 text-primary"></i> Academic Statistical Conclusion:</h6>
+                      <p class="mb-0" id="hypoResConclusion"></p>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Placeholder when no test executed -->
+              <div id="hypothesisEmptyState" class="card-custom text-center py-5 text-muted">
+                <i class="fas fa-flask fa-3x mb-3 text-primary opacity-50"></i>
+                <h5>Ready for Hypothesis Testing</h5>
+                <p class="small max-w-400 mx-auto">
+                  Configure test parameters on the left or draw random student samples from the database, then click <strong>"Perform Hypothesis Test"</strong>.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 5. SAVED RESULTS & ANALYSIS HISTORY        -->
+        <!-- ========================================== -->
+        <section class="section-view" id="analysis-history">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Analysis History & Saved Records</h2>
+              <p class="page-subtitle">Track, inspect, and export previously executed statistical hypothesis tests.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-custom" id="btnExportAnalysisJson">
+                <i class="fas fa-file-code text-primary me-1"></i> Export JSON
+              </button>
+              <button class="btn btn-outline-custom" id="btnExportAnalysisCsv">
+                <i class="fas fa-file-csv text-success me-1"></i> Export CSV
+              </button>
+              <button class="btn btn-outline-danger" id="btnClearAllAnalyses">
+                <i class="fas fa-trash-can me-1"></i> Clear All History
+              </button>
+            </div>
+          </div>
+
+          <div class="table-custom-wrapper">
+            <div class="table-responsive">
+              <table class="table-custom">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Test Name</th>
+                    <th>Tail Type</th>
+                    <th>Hypothesis Parameters</th>
+                    <th>α</th>
+                    <th>Test Stat</th>
+                    <th>P-Value</th>
+                    <th>Decision</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="analysisHistoryTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 6. VISUALIZATIONS VIEW                     -->
+        <!-- ========================================== -->
+        <section class="section-view" id="visualizations">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Statistical Visualizations & Analytics</h2>
+              <p class="page-subtitle">Interactive visual exploration of student cohorts, distributions, and error boundaries.</p>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-pie-chart text-success"></i> Pass vs Fail Ratio</h3>
+                </div>
+                <div class="card-custom-body" style="height: 280px;">
+                  <canvas id="passFailChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-chart-column text-purple"></i> Attendance Distribution</h3>
+                </div>
+                <div class="card-custom-body" style="height: 280px;">
+                  <canvas id="attendanceDistChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 7. PRESET EXAMPLES VIEW                    -->
+        <!-- ========================================== -->
+        <section class="section-view" id="examples">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Curated Academic Hypothesis Testing Examples</h2>
+              <p class="page-subtitle">Demonstrate standard textbook scenarios for B.Tech AIML viva and examinations.</p>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Example 1 -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-body d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="badge bg-primary mb-2">Example 1: Two-Tailed T-Test</div>
+                    <h5 class="fw-bold">Overall Academic Standard</h5>
+                    <p class="small text-muted">
+                      Testing if the current class average differs from the traditional benchmark of 70 marks.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                      <li><strong>μ₀:</strong> 70 marks</li>
+                      <li><strong>x̄:</strong> 73 marks</li>
+                      <li><strong>s:</strong> 8 marks | <strong>n:</strong> 36</li>
+                      <li><strong>α:</strong> 0.05 | Two-Tailed</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary-custom w-100" data-example="ex1">
+                    <i class="fas fa-bolt me-1"></i> Load Example 1
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-body d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="badge bg-success mb-2">Example 2: Right-Tailed Test</div>
+                    <h5 class="fw-bold">AI Programming Enhancement</h5>
+                    <p class="small text-muted">
+                      Testing whether new programming labs significantly increased student performance above 65 marks.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                      <li><strong>μ₀:</strong> 65 marks</li>
+                      <li><strong>x̄:</strong> 68 marks</li>
+                      <li><strong>s:</strong> 7 marks | <strong>n:</strong> 40</li>
+                      <li><strong>α:</strong> 0.05 | Right-Tailed (H₁: μ > 65)</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary-custom w-100" data-example="ex2">
+                    <i class="fas fa-bolt me-1"></i> Load Example 2
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-body d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="badge bg-danger mb-2">Example 3: Left-Tailed Test</div>
+                    <h5 class="fw-bold">Math Remedial Evaluation</h5>
+                    <p class="small text-muted">
+                      Checking if student scores have fallen below the desired standard benchmark of 75 marks.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                      <li><strong>μ₀:</strong> 75 marks</li>
+                      <li><strong>x̄:</strong> 72 marks</li>
+                      <li><strong>s:</strong> 9 marks | <strong>n:</strong> 30</li>
+                      <li><strong>α:</strong> 0.05 | Left-Tailed (H₁: μ < 75)</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary-custom w-100" data-example="ex3">
+                    <i class="fas fa-bolt me-1"></i> Load Example 3
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-body d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="badge bg-indigo text-white mb-2" style="background:#6366f1;">Example 4: Z-Test (Known σ)</div>
+                    <h5 class="fw-bold">Known Population Variance</h5>
+                    <p class="small text-muted">
+                      University board knows historical standard deviation σ = 10 for Database Management.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                      <li><strong>μ₀:</strong> 70 marks</li>
+                      <li><strong>x̄:</strong> 74 marks</li>
+                      <li><strong>σ:</strong> 10 (Known) | <strong>n:</strong> 64</li>
+                      <li><strong>α:</strong> 0.05 | Two-Tailed (Z-Test)</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary-custom w-100" data-example="ex4">
+                    <i class="fas fa-bolt me-1"></i> Load Example 4
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card-custom h-100">
+                <div class="card-custom-body d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="badge bg-warning text-dark mb-2">Example 5: Small Sample T-Test</div>
+                    <h5 class="fw-bold">Small Cohort Sample (n &lt; 30)</h5>
+                    <p class="small text-muted">
+                      Evaluating specialized AIML elective with a small batch size of 16 students.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                      <li><strong>μ₀:</strong> 70 marks</li>
+                      <li><strong>x̄:</strong> 74 marks</li>
+                      <li><strong>s:</strong> 8 marks | <strong>n:</strong> 16 (df = 15)</li>
+                      <li><strong>α:</strong> 0.05 | One-Sample T-Test</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary-custom w-100" data-example="ex5">
+                    <i class="fas fa-bolt me-1"></i> Load Example 5
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 8. LEARN VIEW (EDUCATIONAL REFERENCE)      -->
+        <!-- ========================================== -->
+        <section class="section-view" id="learn">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">Educational Guide: Testing of Hypothesis – I</h2>
+              <p class="page-subtitle">Comprehensive textbook concepts, mathematical foundations, error matrices, and viva reference.</p>
+            </div>
+          </div>
+
+          <!-- Type I and Type II Error 2x2 Matrix -->
+          <div class="card-custom mb-4">
+            <div class="card-custom-header">
+              <h3 class="card-custom-title"><i class="fas fa-shield-halved text-danger"></i> Type I and Type II Error Decision Matrix</h3>
+            </div>
+            <div class="card-custom-body">
+              <p class="small text-muted">
+                In statistical hypothesis testing, two types of erroneous decisions can occur depending on the unknown reality:
+              </p>
+              
+              <div class="table-responsive">
+                <table class="error-matrix-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">True Reality in Population</th>
+                      <th style="width: 37.5%;">Decision: Reject H₀</th>
+                      <th style="width: 37.5%;">Decision: Fail to Reject H₀</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>H₀ is TRUE</strong><br><small class="text-muted">(Benchmark holds)</small></td>
+                      <td class="cell-type1">
+                        <i class="fas fa-times-circle me-1"></i> TYPE I ERROR (α)<br>
+                        <small>False Positive: Rejecting a true null hypothesis.</small>
+                      </td>
+                      <td class="cell-correct">
+                        <i class="fas fa-check-circle me-1"></i> CORRECT DECISION (1 - α)<br>
+                        <small>Confidence Level</small>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>H₀ is FALSE</strong><br><small class="text-muted">(Real difference exists)</small></td>
+                      <td class="cell-correct">
+                        <i class="fas fa-check-circle me-1"></i> CORRECT DECISION (1 - β)<br>
+                        <small>Statistical Power</small>
+                      </td>
+                      <td class="cell-type2">
+                        <i class="fas fa-exclamation-triangle me-1"></i> TYPE II ERROR (β)<br>
+                        <small>False Negative: Failing to reject a false null hypothesis.</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border h-100">
+                    <h6 class="fw-bold text-danger mb-1"><i class="fas fa-circle-exclamation me-1"></i> Significance Level (α = 0.05)</h6>
+                    <p class="small text-muted mb-0">The probability of committing a Type I error. A 5% level means we tolerate at most a 5% chance of rejecting a true null hypothesis.</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border h-100">
+                    <h6 class="fw-bold text-warning text-dark mb-1"><i class="fas fa-bolt me-1"></i> Power of the Test (1 - β)</h6>
+                    <p class="small text-muted mb-0">The probability of correctly rejecting a false null hypothesis. Higher sample sizes ($n$) increase statistical power.</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="p-3 bg-light rounded border h-100">
+                    <h6 class="fw-bold text-primary mb-1"><i class="fas fa-balance-scale me-1"></i> P-Value Decision Rule</h6>
+                    <p class="small text-muted mb-0">If $p \le \alpha \rightarrow$ <strong>Reject $H_0$</strong> (Significant). If $p > \alpha \rightarrow$ <strong>Fail to Reject $H_0$</strong> (Never say 'Accept $H_0$').</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulas and Topics Breakdown -->
+          <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+              <div class="card-custom h-100">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-square-root-variable text-primary"></i> Core Mathematical Formulas</h3>
+                </div>
+                <div class="card-custom-body small">
+                  <div class="math-formula-box">
+                    <strong>Sample Mean:</strong> $\bar{x} = \frac{\sum x_i}{n}$
+                  </div>
+                  <div class="math-formula-box">
+                    <strong>Sample Standard Deviation:</strong> $s = \sqrt{\frac{\sum (x_i - \bar{x})^2}{n - 1}}$
+                  </div>
+                  <div class="math-formula-box">
+                    <strong>Standard Error of Mean:</strong> $SE = \frac{s}{\sqrt{n}} \text{ or } \frac{\sigma}{\sqrt{n}}$
+                  </div>
+                  <div class="math-formula-box">
+                    <strong>One-Sample Z-Test:</strong> $Z = \frac{\bar{x} - \mu_0}{\sigma / \sqrt{n}}$
+                  </div>
+                  <div class="math-formula-box">
+                    <strong>One-Sample T-Test:</strong> $t = \frac{\bar{x} - \mu_0}{s / \sqrt{n}}, \quad df = n - 1$
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card-custom h-100">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-calculator text-indigo"></i> Interactive Utility: Sample Size Calculator</h3>
+                </div>
+                <div class="card-custom-body">
+                  <p class="small text-muted mb-2">Estimate minimum required sample size for estimating population mean marks:</p>
+                  <div class="row g-2 mb-2">
+                    <div class="col-4">
+                      <label class="small fw-bold">Confidence Level</label>
+                      <select class="form-select form-select-sm" id="calcConfLevel">
+                        <option value="0.95">95% (Z = 1.960)</option>
+                        <option value="0.99">99% (Z = 2.576)</option>
+                        <option value="0.90">90% (Z = 1.645)</option>
+                      </select>
+                    </div>
+                    <div class="col-4">
+                      <label class="small fw-bold">Margin of Error (E)</label>
+                      <input type="number" class="form-control form-control-sm" id="calcMoe" value="2.5" step="0.1">
+                    </div>
+                    <div class="col-4">
+                      <label class="small fw-bold">Pop Std Dev (σ)</label>
+                      <input type="number" class="form-control form-control-sm" id="calcPopSd" value="8.0" step="0.1">
+                    </div>
+                  </div>
+                  <button class="btn btn-outline-custom btn-sm w-100" id="btnCalcSampleSize">
+                    <i class="fas fa-calculator me-1"></i> Calculate Required Sample Size (n)
+                  </button>
+                  <div id="calcSampleSizeResult"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descriptive Calculator Utility -->
+          <div class="card-custom">
+            <div class="card-custom-header">
+              <h3 class="card-custom-title"><i class="fas fa-chart-simple text-success"></i> Descriptive Statistics Calculator</h3>
+            </div>
+            <div class="card-custom-body">
+              <p class="small text-muted mb-2">Enter custom numbers to calculate count, mean, median, mode, variance, range, and standard deviation:</p>
+              <div class="input-group mb-2">
+                <input type="text" class="form-control form-control-sm" id="descCalcInput" placeholder="e.g. 68, 74, 82, 91, 58, 77, 85, 90, 73, 69">
+                <button class="btn btn-primary-custom btn-sm" id="btnCalcDescStats">Calculate</button>
+              </div>
+              <div id="descCalcResult"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 9. ABOUT PROJECT VIEW                      -->
+        <!-- ========================================== -->
+        <section class="section-view" id="about">
+          <div class="page-title-box">
+            <div>
+              <h2 class="page-title">About Project & Academic Details</h2>
+              <p class="page-subtitle">Project documentation for B.Tech AIML viva examinations and evaluations.</p>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-graduation-cap text-primary"></i> Academic Profile</h3>
+                </div>
+                <div class="card-custom-body">
+                  <h5 class="fw-bold">Academic Performance Hypothesis Testing System</h5>
+                  <p class="text-muted">
+                    This software system was designed as a hands-on pedagogical and analytical platform for Engineering students studying 
+                    <strong>Module VII: Testing of Hypothesis – I</strong> in Statistics and Data Analytics.
+                  </p>
+
+                  <h6 class="fw-bold text-dark mt-4 mb-2">Key Learning Outcomes:</h6>
+                  <ul class="small text-muted">
+                    <li>Formulating Null ($H_0$) and Alternative ($H_1$) hypotheses for academic performance metrics.</li>
+                    <li>Distinguishing when to apply the standard normal Z-test ($\sigma$ known) versus Student's t-test ($\sigma$ unknown).</li>
+                    <li>Understanding Type I ($\alpha$) and Type II ($\beta$) errors in real decision-making contexts.</li>
+                    <li>Analyzing directional tests: Left-tailed ($H_1: \mu < \mu_0$), Right-tailed ($H_1: \mu > \mu_0$), and Two-tailed ($H_1: \mu \neq \mu_0$).</li>
+                    <li>Computing critical values and p-values using continuous sampling distributions.</li>
+                    <li>Never stating "Accept $H_0$", but strictly adhering to "Reject $H_0$" or "Fail to Reject $H_0$".</li>
+                  </ul>
+
+                  <h6 class="fw-bold text-dark mt-4 mb-2">Technology Architecture:</h6>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-light text-dark border p-2"><i class="fab fa-html5 text-danger me-1"></i> HTML5</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fab fa-css3-alt text-primary me-1"></i> CSS3</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fab fa-js text-warning me-1"></i> JavaScript ES6+</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fab fa-bootstrap text-purple me-1"></i> Bootstrap 5</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fas fa-chart-line text-info me-1"></i> Chart.js</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fas fa-database text-secondary me-1"></i> LocalStorage</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="card-custom">
+                <div class="card-custom-header">
+                  <h3 class="card-custom-title"><i class="fas fa-circle-question text-info"></i> Sample Viva Q&A</h3>
+                </div>
+                <div class="card-custom-body small">
+                  <div class="mb-3">
+                    <strong>Q: Why use T-test instead of Z-test when σ is unknown?</strong>
+                    <p class="text-muted mb-0">When population standard deviation σ is unknown, estimating it using sample standard deviation $s$ introduces extra sampling variability, which follows Student's t-distribution with $n - 1$ degrees of freedom.</p>
+                  </div>
+                  <div class="mb-3">
+                    <strong>Q: What is the P-Value?</strong>
+                    <p class="text-muted mb-0">The probability of obtaining a test statistic at least as extreme as the observed value, assuming the null hypothesis is true.</p>
+                  </div>
+                  <div>
+                    <strong>Q: Why do we say 'Fail to Reject H₀' instead of 'Accept H₀'?</strong>
+                    <p class="text-muted mb-0">Because lack of evidence against $H_0$ does not prove $H_0$ is true; it merely means our sample data lacks sufficient statistical evidence to refute it.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD / EDIT STUDENT                  -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="studentModalTitle">Add New Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="studentForm">
+          <input type="hidden" id="studentFormMode" value="ADD">
+          <div class="modal-body">
+            
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Student ID <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="studentIdInput" required placeholder="e.g. STU2026-101">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold">Student Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="studentNameInput" required placeholder="e.g. Rahul Sharma">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Academic Year <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" id="studentYearInput">
+                  <option value="2026-2027">2026-2027</option>
+                  <option value="2025-2026">2025-2026</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Department <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" id="studentDeptInput">
+                  <option value="CSE-AIML">CSE-AIML</option>
+                  <option value="CSE">CSE</option>
+                  <option value="ECE">ECE</option>
+                  <option value="EEE">EEE</option>
+                  <option value="IT">IT</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold">Section <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" id="studentSectionInput">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold">Semester</label>
+                <select class="form-select form-select-sm" id="studentSemInput">
+                  <option value="3">Sem 3</option>
+                  <option value="4">Sem 4</option>
+                  <option value="5" selected>Sem 5</option>
+                  <option value="6">Sem 6</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold">Gender</label>
+                <select class="form-select form-select-sm" id="studentGenderInput">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Attendance (%) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-sm" id="studentAttendanceInput" value="85" min="0" max="100" required>
+              </div>
+            </div>
+
+            <h6 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-primary">Academic Subject Marks (0 - 100)</h6>
+            <div class="row g-2">
+              <div class="col">
+                <label class="form-label small fw-bold">Mathematics</label>
+                <input type="number" class="form-control form-control-sm" id="studentMathInput" value="75" min="0" max="100" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-bold">Programming</label>
+                <input type="number" class="form-control form-control-sm" id="studentProgInput" value="78" min="0" max="100" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-bold">Statistics</label>
+                <input type="number" class="form-control form-control-sm" id="studentStatsInput" value="72" min="0" max="100" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-bold">DBMS</label>
+                <input type="number" class="form-control form-control-sm" id="studentDbmsInput" value="76" min="0" max="100" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-bold">AI</label>
+                <input type="number" class="form-control form-control-sm" id="studentAiInput" value="80" min="0" max="100" required>
+              </div>
+            </div>
+            <input type="hidden" id="studentAgeInput" value="20">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary-custom">Save Student Record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: SELECT SAMPLE FROM DATABASE         -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="sampleDatabaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="fas fa-database text-primary me-2"></i> Select Sample from Database</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted mb-3">Extract a representative sample directly from the 2-year institutional student dataset to feed the hypothesis testing engine.</p>
+          
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Academic Year</label>
+            <select class="form-select form-select-sm" id="dbSampleYear">
+              <option value="ALL">Both Academic Years (2025-2027)</option>
+              <option value="2025-2026">2025-2026 Cohort</option>
+              <option value="2026-2027">2026-2027 Cohort</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Department</label>
+            <select class="form-select form-select-sm" id="dbSampleDept">
+              <option value="ALL">All Departments</option>
+              <option value="CSE-AIML">CSE-AIML</option>
+              <option value="CSE">CSE</option>
+              <option value="ECE">ECE</option>
+              <option value="EEE">EEE</option>
+              <option value="IT">IT</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Target Metric / Subject</label>
+            <select class="form-select form-select-sm" id="dbSampleSubject">
+              <option value="overall">Overall Percentage (%)</option>
+              <option value="mathematics">Mathematics</option>
+              <option value="programming">Programming</option>
+              <option value="statistics">Statistics</option>
+              <option value="database">DBMS</option>
+              <option value="ai">Artificial Intelligence</option>
+            </select>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold">Selection Method</label>
+              <select class="form-select form-select-sm" id="dbSampleMethod">
+                <option value="RANDOM_N">Random N Students</option>
+                <option value="FIRST_N">First N Students</option>
+                <option value="ALL_MATCHING">All Matching Records</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">Sample Size (n)</label>
+              <input type="number" class="form-control form-control-sm" id="dbSampleSize" value="30" min="2" max="200">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-custom" id="btnConfirmDbSample">
+            <i class="fas fa-bolt me-1"></i> Generate & Load Sample
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: DELETE CONFIRMATION                 -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white py-2">
+          <h6 class="modal-title fw-bold"><i class="fas fa-triangle-exclamation me-1"></i> Confirm Deletion</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <p class="mb-1">Are you sure you want to delete student record:</p>
+          <h6 class="fw-bold text-danger" id="deleteStudentIdDisplay">STU...</h6>
+          <small class="text-muted">This action can be undone by resetting the sample dataset.</small>
+        </div>
+        <div class="modal-footer justify-content-center py-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDeleteStudent">Delete Student</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PRINTABLE REPORT                    -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header btn-no-print">
+          <h5 class="modal-title fw-bold"><i class="fas fa-file-lines text-primary me-2"></i> Academic Hypothesis Testing Report</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" id="reportModalBody">
+          <!-- Rendered dynamically -->
+        </div>
+        <div class="modal-footer btn-no-print">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary-custom" onclick="window.print()">
+            <i class="fas fa-print me-1"></i> Print / Save as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- KaTeX -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Application Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/statistics.js"></script>
+  <script src="js/hypothesis.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
